@@ -2,7 +2,7 @@
 const { MongoClient, ServerApiVersion } = require("mongodb");
 require("dotenv").config();
 
-const uri = `mongodb+srv://${process.env.USER_NAME}:${process.env.USER_PASS}@cluster0.hyltisu.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
+const uri = `mongodb+srv://shopMasterDB:2kagMrVmD10p3VgK@cluster0.hyltisu.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
 const client = new MongoClient(uri, {
   serverApi: {
