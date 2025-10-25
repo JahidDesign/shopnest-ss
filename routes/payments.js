@@ -1,122 +1,210 @@
-require('dotenv').config();
+require("dotenv").config();
 const express = require("express");
-const fetch = require("node-fetch");
+const fetch = require("node-fetch"); // make sure installed
 const { ObjectId } = require("mongodb");
-const { getCreateOrderCollection } = require("../db"); // single collection for orders
+const { getPaymentCollection } = require("../db");
+
 const router = express.Router();
 
-const STORE_ID = process.env.SSLCOMMERZ_STORE_ID;
-const STORE_PASS = process.env.SSLCOMMERZ_STORE_PASS;
-const CLIENT_URL = process.env.CLIENT_URL;
+// Environment Variables
+const BKASH_APP_KEY = process.env.BKASH_APP_KEY;
+const BKASH_APP_SECRET = process.env.BKASH_APP_SECRET;
+const BKASH_USERNAME = process.env.BKASH_USERNAME;
+const BKASH_PASSWORD = process.env.BKASH_PASSWORD;
+const BKASH_SANDBOX_URL = "https://tokenized.sandbox.bka.sh/v1.2.0-beta";
 
-// ✅ CREATE Payment / Order
-router.post("/", async (req, res) => {
-  const { amount, customer_name, customer_email, product_title, product_type } = req.body;
+const NAGAD_SANDBOX_URL = "https://sandbox.mynagad.com/api";
+const ROCKET_SANDBOX_URL = "https://sandbox.rocket.com/api"; // placeholder
 
-  if (!amount || !customer_name || !customer_email || !product_title) {
-    return res.status(400).json({ error: "Missing required fields" });
-  }
+// ------------------- Utility -------------------
+// Save payment info to MongoDB
+const savePayment = async (paymentData) => {
+  const collection = await getPaymentCollection();
+  await collection.insertOne(paymentData);
+};
 
-  const tran_id = "TRX" + Date.now();
+// ===================================================
+// 🔹 bKash Payment Routes
+// ===================================================
 
-  const data = {
-    store_id: STORE_ID,
-    store_passwd: STORE_PASS,
-    total_amount: amount,
-    currency: "BDT",
-    tran_id,
-    success_url: `${CLIENT_URL}/success?tran_id=${tran_id}`,
-    fail_url: `${CLIENT_URL}/fail?tran_id=${tran_id}`,
-    cancel_url: `${CLIENT_URL}/cancel?tran_id=${tran_id}`,
-    cus_name: customer_name,
-    cus_email: customer_email,
-    cus_add1: "Dhaka",
-    cus_city: "Dhaka",
-    cus_country: "Bangladesh",
-  };
-
+// 1️⃣ Generate bKash Token
+router.post("/bkash/token", async (req, res) => {
   try {
-    // Call SSLCOMMERZ API
-    const response = await fetch(
-      "https://sandbox.sslcommerz.com/gwprocess/v4/api.php",
-      { method: "POST", body: new URLSearchParams(data) }
-    );
-    const result = await response.json();
-
-    // Save order in MongoDB
-    const orderData = {
-      tran_id,
-      amount,
-      customer_name,
-      customer_email,
-      product_title,
-      product_type,
-      status: "pending",
-      payment_gateway: "SSLCOMMERZ",
-      gateway_response: result,
-      createdAt: new Date(),
-    };
-
-    const dbResult = await getCreateOrderCollection().insertOne(orderData);
-
-    res.status(201).json({
-      message: "Order created",
-      orderId: dbResult.insertedId,
-      ssl_redirect_url: result.GatewayPageURL,
+    const response = await fetch(`${BKASH_SANDBOX_URL}/token/grant`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        app_key: BKASH_APP_KEY,
+        app_secret: BKASH_APP_SECRET,
+        username: BKASH_USERNAME,
+        password: BKASH_PASSWORD,
+      }),
     });
-  } catch (err) {
-    console.error("Payment creation error:", err);
-    res.status(500).json({ error: "Payment initiation failed" });
+
+    const data = await response.json();
+    res.json(data);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to generate bKash token" });
   }
 });
 
-// ✅ GET All Orders
+// 2️⃣ Create bKash Payment
+router.post("/bkash/create", async (req, res) => {
+  const { amount, orderId, customerEmail, token } = req.body;
+
+  if (!token) return res.status(400).json({ error: "bKash token is required" });
+
+  try {
+    const response = await fetch(`${BKASH_SANDBOX_URL}/payment/create`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        authorization: `Bearer ${token}`, // Must be Bearer token
+        "x-app-key": BKASH_APP_KEY,
+      },
+      body: JSON.stringify({
+        amount,
+        currency: "BDT",
+        intent: "sale",
+        merchantInvoiceNumber: orderId,
+      }),
+    });
+
+    const data = await response.json();
+
+    await savePayment({
+      method: "bKash",
+      orderId,
+      customerEmail,
+      amount,
+      status: data.status || "Pending",
+      createdAt: new Date(),
+    });
+
+    res.json(data);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "bKash payment creation failed" });
+  }
+});
+
+// ===================================================
+// 🔹 Nagad Payment Routes
+// ===================================================
+router.post("/nagad/create", async (req, res) => {
+  const { amount, orderId, customerEmail } = req.body;
+
+  try {
+    // Replace with actual Nagad API call
+    const response = await fetch(`${NAGAD_SANDBOX_URL}/checkout/initialize`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ amount, orderId }),
+    });
+
+    const data = await response.json();
+
+    await savePayment({
+      method: "Nagad",
+      orderId,
+      customerEmail,
+      amount,
+      status: "Pending",
+      createdAt: new Date(),
+    });
+
+    res.json(data);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Nagad payment creation failed" });
+  }
+});
+
+// ===================================================
+// 🔹 Rocket Payment Routes
+// ===================================================
+router.post("/rocket/create", async (req, res) => {
+  const { amount, orderId, customerEmail } = req.body;
+
+  try {
+    // Replace with actual Rocket API call
+    const response = await fetch(`${ROCKET_SANDBOX_URL}/checkout`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ amount, orderId }),
+    });
+
+    const data = await response.json();
+
+    await savePayment({
+      method: "Rocket",
+      orderId,
+      customerEmail,
+      amount,
+      status: "Pending",
+      createdAt: new Date(),
+    });
+
+    res.json(data);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Rocket payment creation failed" });
+  }
+});
+
+// ===================================================
+// 🔹 Manual Add Payment
+// ===================================================
+router.post("/add", async (req, res) => {
+  try {
+    const payment = { ...req.body, createdAt: new Date() };
+    const collection = await getPaymentCollection();
+    const result = await collection.insertOne(payment);
+
+    res.json({
+      success: true,
+      message: "Payment added successfully",
+      insertedId: result.insertedId,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to add payment" });
+  }
+});
+
+// ===================================================
+// 🔹 Get All Payments
+// ===================================================
 router.get("/", async (req, res) => {
   try {
-    const orders = await getCreateOrderCollection().find().toArray();
-    res.json(orders);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to fetch orders" });
+    const collection = await getPaymentCollection();
+    const payments = await collection.find().sort({ createdAt: -1 }).toArray();
+    res.json(payments);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to fetch payments" });
   }
 });
 
-// ✅ UPDATE Order Status (Accept/Reject/Completed)
-router.patch("/:id", async (req, res) => {
-  const { status } = req.body;
-
-  if (!["pending", "completed", "rejected"].includes(status)) {
-    return res.status(400).json({ error: "Invalid status" });
-  }
-
+// ===================================================
+// 🔹 Get Single Payment
+// ===================================================
+router.get("/:id", async (req, res) => {
   try {
-    const result = await getCreateOrderCollection().updateOne(
-      { _id: new ObjectId(req.params.id) },
-      { $set: { status, updatedAt: new Date() } }
-    );
-
-    if (result.matchedCount === 0)
-      return res.status(404).json({ error: "Order not found" });
-
-    const updatedOrder = await getCreateOrderCollection().findOne({ _id: new ObjectId(req.params.id) });
-    res.json(updatedOrder);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to update order" });
+    const collection = await getPaymentCollection();
+    const payment = await collection.findOne({ _id: new ObjectId(req.params.id) });
+    if (!payment) return res.status(404).json({ error: "Payment not found" });
+    res.json(payment);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to fetch payment details" });
   }
 });
 
-// ✅ DELETE Order
-router.delete("/:id", async (req, res) => {
-  try {
-    const result = await getCreateOrderCollection().deleteOne({ _id: new ObjectId(req.params.id) });
-    if (result.deletedCount === 0) return res.status(404).json({ error: "Order not found" });
-
-    res.json({ message: "Order deleted successfully" });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to delete order" });
-  }
-});
-
+// ===================================================
+// 🔹 Export Router
+// ===================================================
 module.exports = router;

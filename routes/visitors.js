@@ -40,7 +40,7 @@ router.post('/', async (req, res) => {
   const visitor = req.body;
 
   // ✅ Required fields
-  const requiredFields = ['title', 'description', 'image', 'link', 'createdAt'];
+  const requiredFields = [ 'image', 'createdAt'];
   const missingFields = requiredFields.filter((field) => !visitor[field]);
 
   if (missingFields.length > 0) {

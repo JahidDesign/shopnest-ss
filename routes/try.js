@@ -2,7 +2,8 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { ObjectId } = require("mongodb");
-const { getCustomerCollection } = require("../db");
+const { getCustomerCollection
+ } = require("../db");
 const router = express.Router();
 
 const JWT_SECRET = process.env.JWT_SECRET || "super_secret_key";
@@ -31,7 +32,8 @@ router.post("/", async (req, res) => {
     if (!uid || !name || !email || !password)
       return res.status(400).json({ error: "Missing required fields." });
 
-    const customers = await getCustomerCollection();
+    const customers = await getCustomerCollection
+();
     const existing = await customers.findOne({ email });
     if (existing) return res.status(409).json({ error: "User already exists." });
 
@@ -62,7 +64,8 @@ router.post("/login", async (req, res) => {
     const { email, password } = req.body;
     if (!email || !password) return res.status(400).json({ error: "Email and password required." });
 
-    const customers = await getCustomerCollection();
+    const customers = await getCustomerCollection
+();
     const user = await customers.findOne({ email });
     if (!user || !user.password) return res.status(401).json({ error: "Invalid credentials." });
 
@@ -83,7 +86,8 @@ router.post("/google-login", async (req, res) => {
     const { uid, email, name, photo } = req.body;
     if (!uid || !email) return res.status(400).json({ error: "UID and email required." });
 
-    const customers = await getCustomerCollection();
+    const customers = await getCustomerCollection
+();
     let user = await customers.findOne({ email });
 
     if (!user) {
@@ -112,7 +116,8 @@ router.post("/google-login", async (req, res) => {
 // ===== READ ALL =====
 router.get("/", async (req, res) => {
   try {
-    const customers = await getCustomerCollection();
+    const customers = await getCustomerCollection
+();
     const users = await customers.find({}).toArray();
     res.json(users.map(sanitizeUser));
   } catch (err) {
@@ -124,7 +129,8 @@ router.get("/", async (req, res) => {
 // ===== READ ONE =====
 router.get("/:id", async (req, res) => {
   try {
-    const customers = await getCustomerCollection();
+    const customers = await getCustomerCollection
+();
     const user = await customers.findOne({ _id: new ObjectId(req.params.id) });
     if (!user) return res.status(404).json({ error: "User not found" });
     res.json(sanitizeUser(user));
@@ -147,7 +153,8 @@ router.put("/:id", async (req, res) => {
     if (status) updateData.status = status;
     if (password) updateData.password = await bcrypt.hash(password, 10);
 
-    const customers = await getCustomerCollection();
+    const customers = await getCustomerCollection
+();
     const result = await customers.findOneAndUpdate(
       { _id: new ObjectId(req.params.id) },
       { $set: updateData },

@@ -2,8 +2,10 @@
 const { MongoClient, ServerApiVersion } = require("mongodb");
 require("dotenv").config();
 
+// MongoDB Connection URI
 const uri = `mongodb+srv://shopMasterDB:2kagMrVmD10p3VgK@cluster0.hyltisu.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
+// MongoDB Client Setup
 const client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
@@ -13,6 +15,10 @@ const client = new MongoClient(uri, {
 });
 
 let db;
+
+// ==========================
+// ✅ Core Collections
+// ==========================
 let sunglassesCollection;
 let makeUpCollection;
 let blogPostCollection;
@@ -33,16 +39,51 @@ let ProductsCollection;
 let claimsCollection;
 let homebannersCollection;
 let camerasCollection;
+let homeproductsCollection;
 let chilldsToyCollection;
 let bookInsuranceCollection;
 let HeroCarouselCollection;
-let paymentsInsuranceCollection;
+let paymentsCollection;
+let toursCollection;
 
+// ==========================
+// ✅ New / Product Collections
+// ==========================
+let smartphonesCollection;
+let sportsproductsCollection;
+let newproductsCollection;
+let menproductsCollection;
+let hotproductsCollection;
+let womentproductsCollection;
+let glosoryproductsCollection;
+
+// ==========================
+// ✅ Optional / eCommerce Collections
+// ==========================
+let brandsCollection;
+let subcategoriesCollection;
+let tagsCollection;
+let reviewsCollection;
+let wishlistsCollection;
+let cartsCollection;
+let couponsCollection;
+let shippingCollection;
+let invoicesCollection;
+let stockCollection;
+let suppliersCollection;
+let flashSalesCollection;
+let productVariantsCollection;
+
+// ==========================
+// 🔗 Database Connection
+// ==========================
 async function connectDB() {
   try {
     await client.connect();
     db = client.db("shopMasterDB");
 
+    // Core collections
+    toursCollection = db.collection("tours");
     categoriesCollection = db.collection("categories");
     camerasCollection = db.collection("cameras");
     makeUpCollection = db.collection("makeUp");
@@ -51,164 +92,175 @@ async function connectDB() {
     electronicsCollection = db.collection("electronics");
     airTicketCollection = db.collection("policiesuser");
     featureProductsCollection = db.collection("featureProducts");
+    homeproductsCollection = db.collection("homeproducts");
     chilldsToyCollection = db.collection("chilldsToy");
     bookInsuranceCollection = db.collection("bookProducts");
     visitorsCollection = db.collection("visitors");
-    customerCollection = db.collection("customer"); 
-    contactCollection = db.collection("contact"); 
+    customerCollection = db.collection("customer");
+    contactCollection = db.collection("contact");
     profileDesignCollection = db.collection("profiledesign");
     usersCollection = db.collection("users");
     policiesCollection = db.collection("policies");
     claimsCollection = db.collection("claims");
     subscribersCollection = db.collection("subscribers");
     homebannersCollection = db.collection("homebanners");
-    createOrderCollection = db.collection("payments");
+    createOrderCollection = db.collection("orders");
     ProductsCollection = db.collection("products");
     HeroCarouselCollection = db.collection("heroCarousel");
-    paymentsInsuranceCollection = db.collection("paymentsInsurance");
+    paymentsCollection = db.collection("payments");
+    registerCollection = db.collection("register");
 
-    console.log("MongoDB connected successfully");
+    // Product collections
+    smartphonesCollection = db.collection("smartphones");
+    sportsproductsCollection = db.collection("sportsproducts");
+    newproductsCollection = db.collection("newproducts");
+    menproductsCollection = db.collection("menproducts");
+    hotproductsCollection = db.collection("hotproducts");
+    womentproductsCollection = db.collection("womentproducts");
+    glosoryproductsCollection = db.collection("glosoryproducts");
+
+    // Optional / eCommerce collections
+    brandsCollection = db.collection("brands");
+    subcategoriesCollection = db.collection("subcategories");
+    tagsCollection = db.collection("tags");
+    reviewsCollection = db.collection("reviews");
+    wishlistsCollection = db.collection("wishlists");
+    cartsCollection = db.collection("carts");
+    couponsCollection = db.collection("coupons");
+    shippingCollection = db.collection("shipping");
+    invoicesCollection = db.collection("invoices");
+    stockCollection = db.collection("stock");
+    suppliersCollection = db.collection("suppliers");
+    flashSalesCollection = db.collection("flashSales");
+    productVariantsCollection = db.collection("productVariants");
+
+    console.log("✅ ShopNest server connected successfully");
   } catch (error) {
-    console.error("Failed to connect to MongoDB:", error);
+    console.error("❌ Failed to connect to ShopNest Server:", error);
     process.exit(1);
   }
 }
 
-// Export getter functions with proper checks and fixed naming
-function getmakeUpCollection() {
-  if (!makeUpCollection) throw new Error("Management collection not initialized.");
-  return makeUpCollection;
-}
-function gethomebannersCollection() {
-  if (!homebannersCollection) throw new Error("Management collection not initialized.");
-  return homebannersCollection;
-}
-function getcamerasCollection() {
-  if (!camerasCollection) throw new Error("Management collection not initialized.");
-  return camerasCollection;
-}
-function getcategoriesCollection() {
-  if (!categoriesCollection) throw new Error("Management collection not initialized.");
-  return categoriesCollection;
-}
-function getClaimsCollection() {
-  if (!claimsCollection) throw new Error("Management collection not initialized.");
-  return claimsCollection;
-}
-function getSubscribersCollection() {
-  if (!subscribersCollection) throw new Error("Management collection not initialized.");
-  return subscribersCollection;
-}
-function getsunglassesCollection() {
-  if (!sunglassesCollection) throw new Error("Management collection not initialized.");
-  return sunglassesCollection;
+// ==========================
+// 🧩 Helper: Safe Getter
+// ==========================
+function check(collection, name) {
+  if (!collection) throw new Error(`${name} collection not initialized.`);
+  return collection;
 }
 
-function getBlogPostCollection() {
-  if (!blogPostCollection) throw new Error("BlogPost collection not initialized.");
-  return blogPostCollection;
-}
-function getelectronicsCollection() {
-  if (!electronicsCollection) throw new Error("BlogPost collection not initialized.");
-  return electronicsCollection;
-}
+// ==========================
+// 📦 Getter Functions
+// ==========================
 
-function getAirTicketCollection() {
-  if (!airTicketCollection) throw new Error("AirTicket collection not initialized.");
-  return airTicketCollection;
-}
+// Core
+function getToursCollection() { return check(toursCollection, "tours"); }
+function getSunglassesCollection() { return check(sunglassesCollection, "sunglasses"); }
+function getMakeUpCollection() { return check(makeUpCollection, "makeUp"); }
+function getBlogPostCollection() { return check(blogPostCollection, "blogpost"); }
+function getElectronicsCollection() { return check(electronicsCollection, "electronics"); }
+function getAirTicketCollection() { return check(airTicketCollection, "policiesuser"); }
+function getFeatureProductsCollection() { return check(featureProductsCollection, "featureProducts"); }
+function getVisitorsCollection() { return check(visitorsCollection, "visitors"); }
+function getCustomerCollection() { return check(customerCollection, "customer"); }
+function getContactCollection() { return check(contactCollection, "contact"); }
+function getProfileDesignCollection() { return check(profileDesignCollection, "profiledesign"); }
+function getUsersCollection() { return check(usersCollection, "users"); }
+function getPoliciesCollection() { return check(policiesCollection, "policies"); }
+function getRegisterCollection() { return check(registerCollection, "register"); }
+function getSubscribersCollection() { return check(subscribersCollection, "subscribers"); }
+function getCategoriesCollection() { return check(categoriesCollection, "categories"); }
+function getCreateOrderCollection() { return check(createOrderCollection, "orders"); }
+function getProductsCollection() { return check(ProductsCollection, "products"); }
+function getClaimsCollection() { return check(claimsCollection, "claims"); }
+function getHomeBannersCollection() { return check(homebannersCollection, "homebanners"); }
+function getCamerasCollection() { return check(camerasCollection, "cameras"); }
+function getHomeProductsCollection() { return check(homeproductsCollection, "homeproducts"); }
+function getChilldsToyCollection() { return check(chilldsToyCollection, "chilldsToy"); }
+function getBookInsuranceCollection() { return check(bookInsuranceCollection, "bookProducts"); }
+function getHeroCarouselCollection() { return check(HeroCarouselCollection, "heroCarousel"); }
+function getPaymentCollection() { return check(paymentsCollection, "payments"); }
 
-function getfeatureProductsCollection() {
-  if (!featureProductsCollection) throw new Error("InsuranceServices collection not initialized.");
-  return featureProductsCollection;
-}
-function getchilldsToyCollection() {
-  if (!chilldsToyCollection) throw new Error("InsuranceServices collection not initialized.");
-  return chilldsToyCollection;
-}
-function getBookInsuranceCollection() {
-  if (!bookInsuranceCollection) throw new Error("InsuranceServices collection not initialized.");
-  return bookInsuranceCollection;
-}
+// Product
+function getSmartphonesCollection() { return check(smartphonesCollection, "smartphones"); }
+function getSportsProductsCollection() { return check(sportsproductsCollection, "sportsproducts"); }
+function getNewProductsCollection() { return check(newproductsCollection, "newproducts"); }
+function getMenProductsCollection() { return check(menproductsCollection, "menproducts"); }
+function getHotProductsCollection() { return check(hotproductsCollection, "hotproducts"); }
+function getWomenProductsCollection() { return check(womentproductsCollection, "womentproducts"); }
+function getGlosoryProductsCollection() { return check(glosoryproductsCollection, "glosoryproducts"); }
 
-function getVisitorsCollection() {
-  if (!visitorsCollection) throw new Error("Visitors collection not initialized.");
-  return visitorsCollection;
-}
+// Optional / eCommerce
+function getBrandsCollection() { return check(brandsCollection, "brands"); }
+function getSubcategoriesCollection() { return check(subcategoriesCollection, "subcategories"); }
+function getTagsCollection() { return check(tagsCollection, "tags"); }
+function getReviewsCollection() { return check(reviewsCollection, "reviews"); }
+function getWishlistsCollection() { return check(wishlistsCollection, "wishlists"); }
+function getCartsCollection() { return check(cartsCollection, "carts"); }
+function getCouponsCollection() { return check(couponsCollection, "coupons"); }
+function getShippingCollection() { return check(shippingCollection, "shipping"); }
+function getInvoicesCollection() { return check(invoicesCollection, "invoices"); }
+function getStockCollection() { return check(stockCollection, "stock"); }
+function getSuppliersCollection() { return check(suppliersCollection, "suppliers"); }
+function getFlashSalesCollection() { return check(flashSalesCollection, "flashSales"); }
+function getProductVariantsCollection() { return check(productVariantsCollection, "productVariants"); }
 
-function getCustomerCollection() {
-  if (!customerCollection) throw new Error("Customer collection not initialized.");
-  return customerCollection;
-}
-
-function getProfileDesignCollection() {
-  if (!profileDesignCollection) throw new Error("ProfileDesign collection not initialized.");
-  return profileDesignCollection;
-}
-
-function getUsersCollection() {
-  if (!usersCollection) throw new Error("Users collection not initialized.");
-  return usersCollection;
-}
-
-function getPoliciesCollection() {
-  if (!policiesCollection) throw new Error("Policies collection not initialized.");
-  return policiesCollection;
-}
-function getRegisterCollection() {
-  if (!registerCollection) throw new Error("Policies collection not initialized.");
-  return registerCollection;
-}
-function getCreateOrderCollection() {
-  if (!createOrderCollection) throw new Error("Policies collection not initialized.");
-  return createOrderCollection;
-}
-
-function getProductsCollection() {
-  if (!ProductsCollection) throw new Error("Policies collection not initialized.");
-  return ProductsCollection;
-}
-function getHeroCarouselCollection() {
-  if (!HeroCarouselCollection) throw new Error("Policies collection not initialized.");
-  return HeroCarouselCollection;
-}
-function getPaymentsInsuranceCollection() {
-  if (!paymentsInsuranceCollection) throw new Error("Policies collection not initialized.");
-  return paymentsInsuranceCollection;
-}
-function getContactCollection() {
-  if (!contactCollection) throw new Error("Policies collection not initialized.");
-  return contactCollection;
-}
-function getContactCollection() {
-  if (!insuranceservicesBooking) throw new Error("Policies collection not initialized.");
-  return insuranceservicesBooking;
-}
-
+// ==========================
+// 🚀 Exports
+// ==========================
 module.exports = {
   connectDB,
-  getClaimsCollection,
- getmakeUpCollection,
-  getcamerasCollection,
-  getsunglassesCollection,
-  getcategoriesCollection,
+
+  // Core
+  getSunglassesCollection,
+  getMakeUpCollection,
   getBlogPostCollection,
-  getelectronicsCollection,
+  getElectronicsCollection,
   getAirTicketCollection,
-  getfeatureProductsCollection,
-  getchilldsToyCollection,
-  getBookInsuranceCollection,
-  getSubscribersCollection,
+  getFeatureProductsCollection,
   getVisitorsCollection,
-  getCustomerCollection,
+  getCustomerCollection
+,
   getContactCollection,
   getProfileDesignCollection,
   getUsersCollection,
   getPoliciesCollection,
   getRegisterCollection,
+  getSubscribersCollection,
+  getCategoriesCollection,
   getCreateOrderCollection,
-  getHeroCarouselCollection,
   getProductsCollection,
-  gethomebannersCollection,
-  getPaymentsInsuranceCollection,
+  getClaimsCollection,
+  getHomeBannersCollection,
+  getCamerasCollection,
+  getHomeProductsCollection,
+  getChilldsToyCollection,
+  getBookInsuranceCollection,
+  getHeroCarouselCollection,
+  getPaymentCollection,
+  getToursCollection,
+
+  // Product
+  getSmartphonesCollection,
+  getSportsProductsCollection,
+  getNewProductsCollection,
+  getMenProductsCollection,
+  getHotProductsCollection,
+  getWomenProductsCollection,
+  getGlosoryProductsCollection,
+
+  // Optional / eCommerce
+  getBrandsCollection,
+  getSubcategoriesCollection,
+  getTagsCollection,
+  getReviewsCollection,
+  getWishlistsCollection,
+  getCartsCollection,
+  getCouponsCollection,
+  getShippingCollection,
+  getInvoicesCollection,
+  getStockCollection,
+  getSuppliersCollection,
+  getFlashSalesCollection,
+  getProductVariantsCollection,
 };

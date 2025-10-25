@@ -1,7 +1,7 @@
 // routes/tours.js
 const express = require("express");
 const { ObjectId } = require("mongodb");
-const { getHomeBannersCollection } = require("../db"); // replace with your collection
+const { getBlogPostCollection } = require("../db"); // replace with your collection
 
 const router = express.Router();
 
@@ -11,7 +11,7 @@ const router = express.Router();
  */
 router.get("/", async (req, res) => {
   try {
-    const tours = await getHomeBannersCollection().find().toArray();
+    const tours = await getBlogPostCollection().find().toArray();
     res.status(200).json(tours);
   } catch (err) {
     console.error("Failed to fetch tours:", err);
@@ -26,7 +26,7 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
   try {
     const tourId = req.params.id;
-    const collection = getHomeBannersCollection();
+    const collection = getBlogPostCollection();
 
     // Increment visitor count
     const result = await collection.findOneAndUpdate(
@@ -53,7 +53,7 @@ router.post("/", async (req, res) => {
       ...req.body,
       views: 0, // initialize visitor count
     };
-    const result = await getHomeBannersCollection().insertOne(tourData);
+    const result = await getBlogPostCollection().insertOne(tourData);
     res.status(201).json({ message: "Tour created", insertedId: result.insertedId });
   } catch (err) {
     console.error("Failed to create tour:", err);
@@ -70,7 +70,7 @@ router.put("/:id", async (req, res) => {
     const tourId = req.params.id;
     const updateData = req.body;
 
-    const result = await getHomeBannersCollection().updateOne(
+    const result = await getBlogPostCollection().updateOne(
       { _id: new ObjectId(tourId) },
       { $set: updateData },
       { upsert: false }
@@ -91,7 +91,7 @@ router.put("/:id", async (req, res) => {
 router.delete("/:id", async (req, res) => {
   try {
     const tourId = req.params.id;
-    const result = await getHomeBannersCollection().deleteOne({ _id: new ObjectId(tourId) });
+    const result = await getBlogPostCollection().deleteOne({ _id: new ObjectId(tourId) });
 
     if (result.deletedCount === 0) return res.status(404).json({ error: "Tour not found" });
     res.status(200).json({ message: "Tour deleted successfully" });
@@ -108,7 +108,7 @@ router.delete("/:id", async (req, res) => {
 router.patch("/:id/views", async (req, res) => {
   try {
     const tourId = req.params.id;
-    const result = await getHomeBannersCollection().findOneAndUpdate(
+    const result = await getBlogPostCollection().findOneAndUpdate(
       { _id: new ObjectId(tourId) },
       { $inc: { views: 1 } },
       { returnDocument: "after" }

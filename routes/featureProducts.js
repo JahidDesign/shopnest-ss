@@ -1,7 +1,7 @@
 // routes/productsRoutes.js
 const express = require("express");
 const { ObjectId } = require("mongodb");
-const {   getfeatureProductsCollection } = require("../db");
+const {   getFeatureProductsCollection } = require("../db");
 
 const router = express.Router();
 
@@ -32,7 +32,7 @@ function validateProduct(data) {
 router.get("/", async (req, res) => {
   try {
     const { minRating, sortBy, order } = req.query;
-    const collection = await getfeatureProductsCollection();
+    const collection = await getFeatureProductsCollection();
 
     const query = {};
     if (minRating !== undefined) query.rating = { $gte: Number(minRating) };
@@ -59,7 +59,7 @@ router.get("/:id", async (req, res) => {
   if (!ObjectId.isValid(id)) return res.status(400).json({ error: "Invalid product ID" });
 
   try {
-    const collection = await getfeatureProductsCollection();
+    const collection = await getFeatureProductsCollection();
     const product = await collection.findOne({ _id: new ObjectId(id) });
     if (!product) return res.status(404).json({ error: "Product not found" });
     res.json(product);
@@ -75,7 +75,7 @@ router.post("/", async (req, res) => {
   if (error) return res.status(400).json({ error });
 
   try {
-    const collection = await getfeatureProductsCollection();
+    const collection = await getFeatureProductsCollection();
 
     const newProduct = {
       name: req.body.name || "",
@@ -123,7 +123,7 @@ router.put("/:id", async (req, res) => {
   if (error) return res.status(400).json({ error });
 
   try {
-    const collection = await getfeatureProductsCollection();
+    const collection = await getFeatureProductsCollection();
     const updatedData = { ...req.body, rating: req.body.rating || 0, updatedAt: new Date() };
 
     const result = await collection.findOneAndUpdate(
@@ -146,7 +146,7 @@ router.patch("/:id", async (req, res) => {
   if (!ObjectId.isValid(id)) return res.status(400).json({ error: "Invalid product ID" });
 
   try {
-    const collection = await getfeatureProductsCollection();
+    const collection = await getFeatureProductsCollection();
     const patchData = { ...req.body };
     if (patchData.rating === undefined) patchData.rating = 0;
 
@@ -170,7 +170,7 @@ router.delete("/:id", async (req, res) => {
   if (!ObjectId.isValid(id)) return res.status(400).json({ error: "Invalid product ID" });
 
   try {
-    const collection = await getfeatureProductsCollection();
+    const collection = await getFeatureProductsCollection();
     const result = await collection.deleteOne({ _id: new ObjectId(id) });
     if (result.deletedCount === 0)
       return res.status(404).json({ error: "Product not found" });

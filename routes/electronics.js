@@ -1,7 +1,7 @@
 // routes/products.js
 const express = require("express");
 const { ObjectId } = require("mongodb");
-const { getelectronicsCollection } = require("../db");
+const { getElectronicsCollection } = require("../db");
 
 const router = express.Router();
 
@@ -46,7 +46,7 @@ function validateProduct(data) {
  */
 router.get("/", async (req, res) => {
   try {
-    const products = await getelectronicsCollection()
+    const products = await getElectronicsCollection()
       .find()
       .sort({ createdAt: -1 })
       .toArray();
@@ -67,7 +67,7 @@ router.get("/:id", async (req, res) => {
     return res.status(400).json({ message: "Invalid ID" });
 
   try {
-    const product = await getelectronicsCollection().findOne({
+    const product = await getElectronicsCollection().findOne({
       _id: new ObjectId(id),
     });
     if (!product) return res.status(404).json({ message: "Product not found" });
@@ -118,7 +118,7 @@ router.post("/", async (req, res) => {
       updatedAt: new Date(),
     };
 
-    const result = await getelectronicsCollection().insertOne(newProduct);
+    const result = await getElectronicsCollection().insertOne(newProduct);
 
     res.status(201).json({
       message: "Product created successfully",
@@ -172,7 +172,7 @@ router.put("/:id", async (req, res) => {
       updatedAt: new Date(),
     };
 
-    const result = await getelectronicsCollection().findOneAndUpdate(
+    const result = await getElectronicsCollection().findOneAndUpdate(
       { _id: new ObjectId(id) },
       { $set: updatedProduct },
       { returnDocument: "after" }
@@ -200,7 +200,7 @@ router.delete("/:id", async (req, res) => {
     return res.status(400).json({ message: "Invalid ID" });
 
   try {
-    const result = await getelectronicsCollection().deleteOne({
+    const result = await getElectronicsCollection().deleteOne({
       _id: new ObjectId(id),
     });
 

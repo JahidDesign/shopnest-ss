@@ -1,14 +1,16 @@
 // routes/categories.js
 const express = require("express");
 const { ObjectId } = require("mongodb");
-const { getcategoriesCollection } = require("../db");
+const { getCategoriesCollection
+ } = require("../db");
 
 const router = express.Router();
 
 // ✅ GET all categories
 router.get("/", async (req, res) => {
   try {
-    const categories = await getcategoriesCollection().find().toArray();
+    const categories = await getCategoriesCollection
+().find().toArray();
     res.json(categories);
   } catch (error) {
     console.error("Error fetching categories:", error);
@@ -19,7 +21,8 @@ router.get("/", async (req, res) => {
 // ✅ GET one category by ID
 router.get("/:id", async (req, res) => {
   try {
-    const category = await getcategoriesCollection().findOne({
+    const category = await getCategoriesCollection
+().findOne({
       _id: new ObjectId(req.params.id),
     });
 
@@ -50,7 +53,8 @@ router.post("/", async (req, res) => {
       createdAt: new Date(),
     };
 
-    const result = await getcategoriesCollection().insertOne(newCategory);
+    const result = await getCategoriesCollection
+().insertOne(newCategory);
 
     res.status(201).json({ _id: result.insertedId, ...newCategory });
   } catch (error) {
@@ -64,7 +68,8 @@ router.put("/:id", async (req, res) => {
   try {
     const { title, image, link } = req.body;
 
-    const result = await getcategoriesCollection().updateOne(
+    const result = await getCategoriesCollection
+().updateOne(
       { _id: new ObjectId(req.params.id) },
       { $set: { title, link, image: image || null } }
     );
@@ -82,7 +87,8 @@ router.put("/:id", async (req, res) => {
 // ✅ DELETE a category
 router.delete("/:id", async (req, res) => {
   try {
-    const result = await getcategoriesCollection().deleteOne({
+    const result = await getCategoriesCollection
+().deleteOne({
       _id: new ObjectId(req.params.id),
     });
 

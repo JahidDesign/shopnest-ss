@@ -1,124 +1,109 @@
-// routes/tours.js
-const express = require("express");
-const { ObjectId } = require("mongodb");
-const { getBlogPostCollection } = require("../db"); // replace with your collection
+const express = require('express');
+const { ObjectId } = require('mongodb');
+const { getToursCollection } = require('../db');
 
 const router = express.Router();
 
-/**
- * GET /tours
- * Get all tours
- */
-router.get("/", async (req, res) => {
+// ========== GET All Visitors ==========
+router.get('/', async (req, res) => {
   try {
-    const tours = await getBlogPostCollection().find().toArray();
-    res.status(200).json(tours);
-  } catch (err) {
-    console.error("Failed to fetch tours:", err);
-    res.status(500).json({ error: "Failed to fetch tour bookings" });
+    const visitors = await getToursCollection().find().toArray();
+    res.status(200).json(visitors);
+  } catch (error) {
+    console.error('[GET /visitors] Error:', error.message);
+    res.status(500).json({ error: 'Failed to fetch visitors' });
   }
 });
 
-/**
- * GET /tours/:id
- * Get a single tour by ID and increment visitor count
- */
-router.get("/:id", async (req, res) => {
-  try {
-    const tourId = req.params.id;
-    const collection = getBlogPostCollection();
+// ========== GET Visitor by ID ==========
+router.get('/:id', async (req, res) => {
+  const { id } = req.params;
 
-    // Increment visitor count
-    const result = await collection.findOneAndUpdate(
-      { _id: new ObjectId(tourId) },
-      { $inc: { views: 1 } }, // increment visitor count
-      { returnDocument: "after" }
+  if (!ObjectId.isValid(id)) {
+    return res.status(400).json({ error: 'Invalid ID format' });
+  }
+
+  try {
+    const visitor = await getToursCollection().findOne({ _id: new ObjectId(id) });
+    if (!visitor) {
+      return res.status(404).json({ error: 'Visitor not found' });
+    }
+    res.status(200).json(visitor);
+  } catch (error) {
+    console.error(`[GET /visitors/${id}] Error:`, error.message);
+    res.status(500).json({ error: 'Failed to retrieve visitor' });
+  }
+});
+
+// ========== POST Create New Visitor ==========
+router.post('/', async (req, res) => {
+  const visitor = req.body;
+
+  // ✅ Required fields
+  const requiredFields = ['title', 'description','tag','categories','prices', 'image', 'discount','discountEnd', 'createdAt'];
+  const missingFields = requiredFields.filter((field) => !visitor[field]);
+
+  if (missingFields.length > 0) {
+    return res.status(400).json({ error: `Missing fields: ${missingFields.join(', ')}` });
+  }
+
+  try {
+    const result = await getToursCollection().insertOne(visitor);
+    res.status(201).json({
+      message: 'Visitor created successfully',
+      insertedId: result.insertedId,
+    });
+  } catch (error) {
+    console.error('[POST /visitors] Error:', error.message);
+    res.status(500).json({ error: 'Failed to create visitor' });
+  }
+});
+
+// ========== PUT Update Visitor ==========
+router.put('/:id', async (req, res) => {
+  const { id } = req.params;
+  const updateData = req.body;
+
+  if (!ObjectId.isValid(id)) {
+    return res.status(400).json({ error: 'Invalid ID format' });
+  }
+
+  try {
+    const result = await getToursCollection().updateOne(
+      { _id: new ObjectId(id) },
+      { $set: updateData }
     );
 
-    if (!result.value) return res.status(404).json({ error: "Tour not found" });
-    res.status(200).json(result.value);
-  } catch (err) {
-    console.error("Failed to fetch tour:", err);
-    res.status(400).json({ error: "Invalid tour ID" });
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ error: 'Visitor not found' });
+    }
+
+    res.status(200).json({ message: 'Visitor updated successfully' });
+  } catch (error) {
+    console.error(`[PUT /visitors/${id}] Error:`, error.message);
+    res.status(500).json({ error: 'Failed to update visitor' });
   }
 });
 
-/**
- * POST /tours
- * Create a new tour
- */
-router.post("/", async (req, res) => {
-  try {
-    const tourData = {
-      ...req.body,
-      views: 0, // initialize visitor count
-    };
-    const result = await getBlogPostCollection().insertOne(tourData);
-    res.status(201).json({ message: "Tour created", insertedId: result.insertedId });
-  } catch (err) {
-    console.error("Failed to create tour:", err);
-    res.status(400).json({ error: "Failed to create tour" });
+// ========== DELETE Visitor ==========
+router.delete('/:id', async (req, res) => {
+  const { id } = req.params;
+
+  if (!ObjectId.isValid(id)) {
+    return res.status(400).json({ error: 'Invalid ID format' });
   }
-});
 
-/**
- * PUT /tours/:id
- * Update a tour
- */
-router.put("/:id", async (req, res) => {
   try {
-    const tourId = req.params.id;
-    const updateData = req.body;
+    const result = await getToursCollection().deleteOne({ _id: new ObjectId(id) });
 
-    const result = await getBlogPostCollection().updateOne(
-      { _id: new ObjectId(tourId) },
-      { $set: updateData },
-      { upsert: false }
-    );
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ error: 'Visitor not found' });
+    }
 
-    if (result.matchedCount === 0) return res.status(404).json({ error: "Tour not found" });
-    res.status(200).json({ message: "Tour updated successfully", result });
-  } catch (err) {
-    console.error("Failed to update tour:", err);
-    res.status(400).json({ error: "Failed to update tour" });
-  }
-});
-
-/**
- * DELETE /tours/:id
- * Delete a tour
- */
-router.delete("/:id", async (req, res) => {
-  try {
-    const tourId = req.params.id;
-    const result = await getBlogPostCollection().deleteOne({ _id: new ObjectId(tourId) });
-
-    if (result.deletedCount === 0) return res.status(404).json({ error: "Tour not found" });
-    res.status(200).json({ message: "Tour deleted successfully" });
-  } catch (err) {
-    console.error("Failed to delete tour:", err);
-    res.status(400).json({ error: "Failed to delete tour" });
-  }
-});
-
-/**
- * PATCH /tours/:id/views
- * Increment only the visitor count
- */
-router.patch("/:id/views", async (req, res) => {
-  try {
-    const tourId = req.params.id;
-    const result = await getBlogPostCollection().findOneAndUpdate(
-      { _id: new ObjectId(tourId) },
-      { $inc: { views: 1 } },
-      { returnDocument: "after" }
-    );
-
-    if (!result.value) return res.status(404).json({ error: "Tour not found" });
-    res.status(200).json({ message: "Visitor count incremented", views: result.value.views });
-  } catch (err) {
-    console.error("Failed to increment views:", err);
-    res.status(400).json({ error: "Invalid tour ID" });
+    res.status(200).json({ message: 'Visitor deleted successfully' });
+  } catch (error) {
+    console.error(`[DELETE /visitors/${id}] Error:`, error.message);
+    res.status(500).json({ error: 'Failed to delete visitor' });
   }
 });
 
