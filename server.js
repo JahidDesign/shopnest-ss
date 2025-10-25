@@ -43,59 +43,97 @@ const authLimiter = rateLimit({
 });
 
 // ------------------- ROUTES -------------------
-// Core ShopNest routes
-const routes = {
-  blogpost: "./routes/blogpost.js",
-  products: "./routes/products.js",
-  categories: "./routes/categories.js",
-  subcategories: "./routes/subcategories.js",
-  brands: "./routes/brands.js",
-  featureProducts: "./routes/featureProducts.js",
-  newproducts: "./routes/newproducts.js",
-  hotproducts: "./routes/hotproducts.js",
-  menproducts: "./routes/menproducts.js",
-  womentproducts: "./routes/womentproducts.js",
-  sportsproducts: "./routes/sportsproducts.js",
-  smartphones: "./routes/smartphones.js",
-  glosoryproducts: "./routes/glosoryproducts.js",
-  electronics: "./routes/electronics.js",
-  users: "./routes/users.js",
-  customer: "./routes/customer.js",
-  profiledesign: "./routes/profiledesign.js",
-  orders: "./routes/orders.js",
-  bookProducts: "./routes/bookProducts.js",
-  stock: "./routes/stock.js",
-  suppliers: "./routes/suppliers.js",
-  flashSales: "./routes/flashSales.js",
-  productVariants: "./routes/productVariants.js",
-  reviews: "./routes/reviews.js",
-  wishlists: "./routes/wishlists.js",
-  carts: "./routes/carts.js",
-  coupons: "./routes/coupons.js",
-  shipping: "./routes/shipping.js",
-  invoices: "./routes/invoices.js",
-  homebanners: "./routes/homebanners.js",
-  heroCarousel: "./routes/heroCarousel.js",
-  homeproducts: "./routes/homeproducts.js",
-  subscribers: "./routes/subscribers.js",
-  visitors: "./routes/visitors.js",
-  contact: "./routes/contact.js",
-  sunglasses: "./routes/sunglasses.js",
-  cameras: "./routes/cameras.js",
-  makeUp: "./routes/makeUp.js",
-  chilldsToy: "./routes/chilldsToy.js",
-  tours: "./routes/tours.js",
-  policies: "./routes/policies.js",
-  policiesuser: "./routes/policiesuser.js",
-  claims: "./routes/claims.js",
-  payments: "./routes/payments.js",
-};
+// Import all routes manually
+import blogpostRoutes from "./routes/blogpost.js";
+import productsRoutes from "./routes/products.js";
+import categoriesRoutes from "./routes/categories.js";
+import subcategoriesRoutes from "./routes/subcategories.js";
+import brandsRoutes from "./routes/brands.js";
+import featureProductsRoutes from "./routes/featureProducts.js";
+import newproductsRoutes from "./routes/newproducts.js";
+import hotproductsRoutes from "./routes/hotproducts.js";
+import menproductsRoutes from "./routes/menproducts.js";
+import womentproductsRoutes from "./routes/womentproducts.js";
+import sportsproductsRoutes from "./routes/sportsproducts.js";
+import smartphonesRoutes from "./routes/smartphones.js";
+import glosoryproductsRoutes from "./routes/glosoryproducts.js";
+import electronicsRoutes from "./routes/electronics.js";
+import usersRoutes from "./routes/users.js";
+import customerRoutes from "./routes/customer.js";
+import profiledesignRoutes from "./routes/profiledesign.js";
+import ordersRoutes from "./routes/orders.js";
+import bookProductsRoutes from "./routes/bookProducts.js";
+import stockRoutes from "./routes/stock.js";
+import suppliersRoutes from "./routes/suppliers.js";
+import flashSalesRoutes from "./routes/flashSales.js";
+import productVariantsRoutes from "./routes/productVariants.js";
+import reviewsRoutes from "./routes/reviews.js";
+import wishlistsRoutes from "./routes/wishlists.js";
+import cartsRoutes from "./routes/carts.js";
+import couponsRoutes from "./routes/coupons.js";
+import shippingRoutes from "./routes/shipping.js";
+import invoicesRoutes from "./routes/invoices.js";
+import homebannersRoutes from "./routes/homebanners.js";
+import heroCarouselRoutes from "./routes/heroCarousel.js";
+import homeproductsRoutes from "./routes/homeproducts.js";
+import subscribersRoutes from "./routes/subscribers.js";
+import visitorsRoutes from "./routes/visitors.js";
+import contactRoutes from "./routes/contact.js";
+import sunglassesRoutes from "./routes/sunglasses.js";
+import camerasRoutes from "./routes/cameras.js";
+import makeUpRoutes from "./routes/makeUp.js";
+import chilldsToyRoutes from "./routes/chilldsToy.js";
+import toursRoutes from "./routes/tours.js";
+import policiesRoutes from "./routes/policies.js";
+import policiesuserRoutes from "./routes/policiesuser.js";
+import claimsRoutes from "./routes/claims.js";
+import paymentsRoutes from "./routes/payments.js";
 
-// Dynamically import and mount all routes
-for (const [path, routePath] of Object.entries(routes)) {
-  const { default: router } = await import(routePath);
-  app.use(`/${path}`, router);
-}
+// ------------------- MOUNT ROUTES MANUALLY -------------------
+app.use("/blogpost", blogpostRoutes);
+app.use("/products", productsRoutes);
+app.use("/categories", categoriesRoutes);
+app.use("/subcategories", subcategoriesRoutes);
+app.use("/brands", brandsRoutes);
+app.use("/featureProducts", featureProductsRoutes);
+app.use("/newproducts", newproductsRoutes);
+app.use("/hotproducts", hotproductsRoutes);
+app.use("/menproducts", menproductsRoutes);
+app.use("/womentproducts", womentproductsRoutes);
+app.use("/sportsproducts", sportsproductsRoutes);
+app.use("/smartphones", smartphonesRoutes);
+app.use("/glosoryproducts", glosoryproductsRoutes);
+app.use("/electronics", electronicsRoutes);
+app.use("/users", usersRoutes);
+app.use("/customer", customerRoutes);
+app.use("/profiledesign", profiledesignRoutes);
+app.use("/orders", ordersRoutes);
+app.use("/bookProducts", bookProductsRoutes);
+app.use("/stock", stockRoutes);
+app.use("/suppliers", suppliersRoutes);
+app.use("/flashSales", flashSalesRoutes);
+app.use("/productVariants", productVariantsRoutes);
+app.use("/reviews", reviewsRoutes);
+app.use("/wishlists", wishlistsRoutes);
+app.use("/carts", cartsRoutes);
+app.use("/coupons", couponsRoutes);
+app.use("/shipping", shippingRoutes);
+app.use("/invoices", invoicesRoutes);
+app.use("/homebanners", homebannersRoutes);
+app.use("/heroCarousel", heroCarouselRoutes);
+app.use("/homeproducts", homeproductsRoutes);
+app.use("/subscribers", subscribersRoutes);
+app.use("/visitors", visitorsRoutes);
+app.use("/contact", contactRoutes);
+app.use("/sunglasses", sunglassesRoutes);
+app.use("/cameras", camerasRoutes);
+app.use("/makeUp", makeUpRoutes);
+app.use("/chilldsToy", chilldsToyRoutes);
+app.use("/tours", toursRoutes);
+app.use("/policies", policiesRoutes);
+app.use("/policiesuser", policiesuserRoutes);
+app.use("/claims", claimsRoutes);
+app.use("/payments", paymentsRoutes);
 
 // ------------------- AUTH -------------------
 // Firebase login → JWT
@@ -156,7 +194,6 @@ app.get("/", (req, res) => {
   res.send("ShopNest API & Stripe Server is running successfully...");
 });
 
-// 404 handler
 app.use((req, res) => {
   res.status(404).json({ error: "Route not found - ShopNest Server" });
 });
