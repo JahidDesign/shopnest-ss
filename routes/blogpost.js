@@ -1,7 +1,7 @@
-// routes/tours.js
-const express = require("express");
-const { ObjectId } = require("mongodb");
-const { getBlogPostCollection } = require("../db"); // replace with your collection
+// routes/blogblogpostpost.js
+import express from "express";
+import { ObjectId } from "mongodb";
+import { getBlogPostCollection } from "../db.js"; // replace with your collection
 
 const router = express.Router();
 
@@ -31,7 +31,7 @@ router.get("/:id", async (req, res) => {
     // Increment visitor count
     const result = await collection.findOneAndUpdate(
       { _id: new ObjectId(tourId) },
-      { $inc: { views: 1 } }, // increment visitor count
+      { $inc: { views: 1 } },
       { returnDocument: "after" }
     );
 
@@ -51,7 +51,7 @@ router.post("/", async (req, res) => {
   try {
     const tourData = {
       ...req.body,
-      views: 0, // initialize visitor count
+      views: 0,
     };
     const result = await getBlogPostCollection().insertOne(tourData);
     res.status(201).json({ message: "Tour created", insertedId: result.insertedId });
@@ -122,4 +122,4 @@ router.patch("/:id/views", async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router; // ✅ ES module export
