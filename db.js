@@ -106,7 +106,7 @@ async function connectDB() {
     homebannersCollection = db.collection("homebanners");
     createOrderCollection = db.collection("orders");
     ProductsCollection = db.collection("products");
-    HeroCarouselCollection = db.collection("heroCarousel");
+    HeroCarouselCollection = db.collection("sectionhero");
     paymentsCollection = db.collection("payments");
     registerCollection = db.collection("register");
 
@@ -178,7 +178,7 @@ function getCamerasCollection() { return check(camerasCollection, "cameras"); }
 function getHomeProductsCollection() { return check(homeproductsCollection, "homeproducts"); }
 function getChilldsToyCollection() { return check(chilldsToyCollection, "chilldsToy"); }
 function getBookInsuranceCollection() { return check(bookInsuranceCollection, "bookProducts"); }
-function getHeroCarouselCollection() { return check(HeroCarouselCollection, "heroCarousel"); }
+function getHeroCarouselCollection() { return check(HeroCarouselCollection, "sectionhero"); }
 function getPaymentCollection() { return check(paymentsCollection, "payments"); }
 
 // Product
