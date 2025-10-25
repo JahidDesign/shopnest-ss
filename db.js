@@ -219,8 +219,7 @@ module.exports = {
   getAirTicketCollection,
   getFeatureProductsCollection,
   getVisitorsCollection,
-  getCustomerCollection
-,
+  getCustomerCollection,
   getContactCollection,
   getProfileDesignCollection,
   getUsersCollection,
