@@ -85,7 +85,7 @@ const routes = {
 
   // Marketing and banners
   homebanners: require("./routes/homebanners"),
-  heroCarousel: require("./routes/sectionhero"),
+  sectionhero: require("./routes/sectionhero"),
   homeproducts: require("./routes/homeproducts"),
   subscribers: require("./routes/subscribers"),
   visitors: require("./routes/visitors"),
