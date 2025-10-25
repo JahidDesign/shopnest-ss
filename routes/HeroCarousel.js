@@ -1,58 +1,106 @@
-// routes/tours.js
-const express = require('express');
-const { ObjectId } = require('mongodb');
-const { getHeroCarouselCollection } = require('../db');
+// File: routes/heroCarousel.js
+const express = require("express");
+const { ObjectId } = require("mongodb");
+const { getHeroCarouselCollection } = require("../db");
 
 const router = express.Router();
 
-router.get('/', async (req, res) => {
+/**
+ * @route   GET /
+ * @desc    Get all hero carousel items
+ */
+router.get("/", async (req, res) => {
   try {
-    const bookings = await getHeroCarouselCollection().find().toArray();
-    res.json(bookings);
-  } catch {
-    res.status(500).json({ error: 'Failed to fetch tour bookings' });
+    const carousels = await getHeroCarouselCollection().find().toArray();
+    res.status(200).json(carousels);
+  } catch (error) {
+    console.error("Error fetching carousel items:", error);
+    res.status(500).json({ error: "Failed to fetch carousel items" });
   }
 });
 
-router.get('/:id', async (req, res) => {
+/**
+ * @route   GET /:id
+ * @desc    Get a single hero carousel item by ID
+ */
+router.get("/:id", async (req, res) => {
   try {
-    const booking = await getHeroCarouselCollection().findOne({ _id: new ObjectId(req.params.id) });
-    booking ? res.json(booking) : res.status(404).json({ error: 'Booking not found' });
-  } catch {
-    res.status(400).json({ error: 'Invalid booking ID' });
+    const carousel = await getHeroCarouselCollection().findOne({
+      _id: new ObjectId(req.params.id),
+    });
+
+    if (!carousel) {
+      return res.status(404).json({ error: "Carousel item not found" });
+    }
+
+    res.status(200).json(carousel);
+  } catch (error) {
+    console.error("Invalid carousel ID:", error);
+    res.status(400).json({ error: "Invalid carousel ID" });
   }
 });
 
-router.post('/', async (req, res) => {
+/**
+ * @route   POST /
+ * @desc    Add a new hero carousel item
+ */
+router.post("/", async (req, res) => {
   try {
+    if (!req.body || Object.keys(req.body).length === 0) {
+      return res.status(400).json({ error: "Request body is empty" });
+    }
+
     const result = await getHeroCarouselCollection().insertOne(req.body);
-    res.status(201).json({ message: 'Booking created', insertedId: result.insertedId });
-  } catch {
-    res.status(400).json({ error: 'Failed to create booking' });
+    res
+      .status(201)
+      .json({ message: "Carousel item created", insertedId: result.insertedId });
+  } catch (error) {
+    console.error("Failed to create carousel item:", error);
+    res.status(500).json({ error: "Failed to create carousel item" });
   }
 });
 
-router.put('/:id', async (req, res) => {
+/**
+ * @route   PUT /:id
+ * @desc    Update an existing hero carousel item
+ */
+router.put("/:id", async (req, res) => {
   try {
     const result = await getHeroCarouselCollection().updateOne(
       { _id: new ObjectId(req.params.id) },
       { $set: req.body },
-      { upsert: true }
+      { upsert: false }
     );
-    res.json({ message: 'Booking updated', result });
-  } catch {
-    res.status(400).json({ error: 'Failed to update booking' });
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ error: "Carousel item not found" });
+    }
+
+    res.status(200).json({ message: "Carousel item updated successfully" });
+  } catch (error) {
+    console.error("Failed to update carousel item:", error);
+    res.status(400).json({ error: "Failed to update carousel item" });
   }
 });
 
-router.delete('/:id', async (req, res) => {
+/**
+ * @route   DELETE /:id
+ * @desc    Delete a hero carousel item
+ */
+router.delete("/:id", async (req, res) => {
   try {
-    const result = await getHeroCarouselCollection().deleteOne({ _id: new ObjectId(req.params.id) });
-    result.deletedCount
-      ? res.json({ message: 'Booking deleted successfully' })
-      : res.status(404).json({ error: 'Booking not found' });
-  } catch {
-    res.status(400).json({ error: 'Failed to delete booking' });
+    const result = await getHeroCarouselCollection().deleteOne({
+      _id: new ObjectId(req.params.id),
+    });
+
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ error: "Carousel item not found" });
+    }
+
+    res.status(200).json({ message: "Carousel item deleted successfully" });
+  } catch (error) {
+    console.error("Failed to delete carousel item:", error);
+    res.status(400).json({ error: "Failed to delete carousel item" });
   }
 });
 
