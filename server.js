@@ -47,7 +47,7 @@ const authLimiter = rateLimit({
 // Import all ShopNest routes
 const routes = {
   // Core eCommerce collections
-  products: require("./routes/blogpost"),
+ carouselRoutes: require("./routes/carouselRoutes"),
   products: require("./routes/products"),
   categories: require("./routes/categories"),
   subcategories: require("./routes/subcategories"),
@@ -62,7 +62,7 @@ const routes = {
   glosoryproducts: require("./routes/glosoryproducts"),
   electronics: require("./routes/electronics"),
 
-  // User and profile management
+  // User and profile managementcarouselRoutes
   users: require("./routes/users"),
   customer: require("./routes/customer"),
   profiledesign: require("./routes/profiledesign"),

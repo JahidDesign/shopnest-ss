@@ -21,7 +21,7 @@ let db;
 // ==========================
 let sunglassesCollection;
 let makeUpCollection;
-let blogPostCollection;
+let CarouselCollection;
 let electronicsCollection;
 let airTicketCollection;
 let featureProductsCollection;
@@ -88,7 +88,7 @@ async function connectDB() {
     camerasCollection = db.collection("cameras");
     makeUpCollection = db.collection("makeUp");
     sunglassesCollection = db.collection("sunglasses");
-    blogPostCollection = db.collection("blogpost");
+    CarouselCollection = db.collection("carouselRoutes");
     electronicsCollection = db.collection("electronics");
     airTicketCollection = db.collection("policiesuser");
     featureProductsCollection = db.collection("featureProducts");
@@ -157,7 +157,7 @@ function check(collection, name) {
 function getToursCollection() { return check(toursCollection, "tours"); }
 function getSunglassesCollection() { return check(sunglassesCollection, "sunglasses"); }
 function getMakeUpCollection() { return check(makeUpCollection, "makeUp"); }
-function getBlogPostCollection() { return check(blogPostCollection, "blogpost"); }
+function getCarouselCollection() { return check(CarouselCollection, "carouselRoutes"); }
 function getElectronicsCollection() { return check(electronicsCollection, "electronics"); }
 function getAirTicketCollection() { return check(airTicketCollection, "policiesuser"); }
 function getFeatureProductsCollection() { return check(featureProductsCollection, "featureProducts"); }
@@ -214,7 +214,7 @@ module.exports = {
   // Core
   getSunglassesCollection,
   getMakeUpCollection,
-  getBlogPostCollection,
+  getCarouselCollection,
   getElectronicsCollection,
   getAirTicketCollection,
   getFeatureProductsCollection,
